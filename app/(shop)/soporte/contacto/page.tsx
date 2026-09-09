@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Mail, MapPin, ArrowUpRight } from 'lucide-react';
 import { FaInstagram, FaWhatsapp } from 'react-icons/fa6';
 
