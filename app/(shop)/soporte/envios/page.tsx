@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { Truck, MapPin, PackageCheck, Clock } from 'lucide-react';
 
 export default function EnviosPage() {
