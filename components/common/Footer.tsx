@@ -54,7 +54,7 @@ export default function Footer() {
 
       <div className="w-full border-t border-border py-6 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <p>&copy; {new Date().getFullYear()} @Nicolás Morales. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} Nicolás Morales. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
