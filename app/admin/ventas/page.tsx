@@ -376,7 +376,6 @@ export default function VentasPage() {
         </div>
       </div>
 
-      {/* Tabla con Columna Cliente */}
       <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">

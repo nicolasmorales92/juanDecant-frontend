@@ -43,7 +43,6 @@ export default function TarjetaProducto({ prod }: { prod: Productos }) {
 
   return (
     <Card className="overflow-hidden flex flex-col h-full rounded-xl border border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300 group">
-      {/* Contenedor Swiper con CSS inyectado para forzar la visibilidad de flechas */}
       <div className="relative h-48 w-full bg-muted/30 overflow-hidden shrink-0 
         [&_.swiper-button-next]:text-zinc-900 [&_.swiper-button-prev]:text-zinc-900 
         [&_.swiper-button-next]:after:text-sm [&_.swiper-button-prev]:after:text-sm 

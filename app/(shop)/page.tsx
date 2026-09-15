@@ -44,7 +44,7 @@ export default function Home() {
   return (
     <div className="w-full bg-background">
       <main className="w-full my-2 md:my-6">
-        <section className="w-full md:h-[75vh] bg-muted/20 relative overflow-hidden">
+        <section className="w-full h-[550px] md:h-[75vh] bg-muted/20 relative overflow-hidden">
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
             navigation={true}
