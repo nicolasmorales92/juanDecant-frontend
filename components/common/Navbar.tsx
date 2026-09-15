@@ -70,7 +70,7 @@ export default function Navbar() {
         
         <div className="flex items-center justify-between gap-4 w-full md:w-auto">
           <div className="font-bold text-xl tracking-tight shrink-0">
-            <Link href="/">Juandecant</Link>
+            <Link href="/">Juan Parfum</Link>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 md:hidden">

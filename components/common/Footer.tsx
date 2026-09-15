@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-5 md:py-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
 
         <div className="space-y-3">
-          <h3 className="font-bold text-foreground text-lg">Juandecant</h3>
+          <h3 className="font-bold text-foreground text-lg">Juan Parfum</h3>
           <p className="text-sm">
             Fragancias de perfumería árabe, nicho y diseñador.
           </p>
