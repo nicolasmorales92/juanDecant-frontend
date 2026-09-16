@@ -30,42 +30,48 @@ export default function ScrollProductos({ productosAmostrar, setProductos }: Scr
     setMasProductos(true);
   }, [query, genero]);
 
-  const cargarMasProductos = async () => {
-    if (loading || !masProductos || genero) return; // 👈 Si hay género seleccionado, no paginamos con la API general
-    setLoading(true);
+ const cargarMasProductos = async () => {
+  if (loading || !masProductos) return; 
+  setLoading(true);
 
-    const proximaPagina = pagina + 1;
+  const proximaPagina = pagina + 1;
 
-    try {
-      const nuevosProductos = await productosApi.obtenerProductos({
+  try {
+    let nuevosProductos: Productos[] = [];
+
+    if (genero) {
+      nuevosProductos = await productosApi.buscarPorGenero(genero, proximaPagina, 6, query);
+    } else {
+      nuevosProductos = await productosApi.obtenerProductos({
         query,
         page: proximaPagina,
         limit: 6,
       });
+    }
 
-      if (Array.isArray(nuevosProductos) && nuevosProductos.length > 0) {
-        setProductos((prev) => {
-          const idsExistentes = new Set(prev.map((p) => p.id));
-          const productosFiltrados = nuevosProductos.filter(
-            (prod: Productos) => !idsExistentes.has(prod.id)
-          );
-          return [...prev, ...productosFiltrados];
-        });
+    if (Array.isArray(nuevosProductos) && nuevosProductos.length > 0) {
+      setProductos((prev) => {
+        const idsExistentes = new Set(prev.map((p) => p.id));
+        const productosFiltrados = nuevosProductos.filter(
+          (prod) => !idsExistentes.has(prod.id)
+        );
+        return [...prev, ...productosFiltrados];
+      });
 
-        setPagina(proximaPagina);
+      setPagina(proximaPagina);
 
-        if (nuevosProductos.length < 6) {
-          setMasProductos(false);
-        }
-      } else {
+      if (nuevosProductos.length < 6) {
         setMasProductos(false);
       }
-    } catch (error) {
-      console.error("Error cargando más productos:", error);
-    } finally {
-      setLoading(false);
+    } else {
+      setMasProductos(false);
     }
-  };
+  } catch (error) {
+    console.error("Error cargando más productos:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     const target = loaderRef.current;

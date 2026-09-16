@@ -76,7 +76,7 @@ export default function PaginaDetalleProducto({ params }: { params: Promise<{ id
       <div className="container mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-2xl font-bold">Producto no encontrado</h2>
         <Button asChild variant="outline">
-          <Link href="/">
+          <Link href="/productos">
             <ArrowLeft className="mr-2 h-4 w-4" /> Volver al catálogo
           </Link>
         </Button>
