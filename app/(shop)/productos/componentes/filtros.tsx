@@ -13,13 +13,22 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 interface FiltrosProps {
+  setGenero: (genero: string) => void;
   setMililitros: (mililitros: string) => void;
   setOrden: (orden: string) => void;
+  generoActual: string;
   mililitroActual: string;
   ordenActual: string;
 }
 
-export default function Filtros({ setMililitros, setOrden }: FiltrosProps) {
+export default function Filtros({
+  setGenero,
+  setMililitros,
+  setOrden,
+  generoActual,
+  mililitroActual,
+  ordenActual,
+}: FiltrosProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryParam = searchParams.get('query') || '';
@@ -46,21 +55,8 @@ export default function Filtros({ setMililitros, setOrden }: FiltrosProps) {
     return () => clearTimeout(timer);
   }, [busqueda, queryParam, searchParams, router]);
 
-  const handleGeneroChange = (genero: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (genero === 'todas') {
-      params.delete('genero');
-    } else {
-      params.set('genero', genero);
-    }
-    const queryString = params.toString();
-    const targetUrl = queryString ? `/productos?${queryString}` : '/productos';
-    router.push(targetUrl, { scroll: false });
-  };
-
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 w-full">
-      
       <div className="relative w-full sm:max-w-xs md:max-w-sm shrink-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -73,32 +69,37 @@ export default function Filtros({ setMililitros, setOrden }: FiltrosProps) {
       </div>
 
       <div className="grid grid-cols-3 sm:flex sm:items-center sm:justify-end gap-1.5 sm:gap-2 w-full">
+        {/* Género */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-1.5 px-2.5 sm:px-3 h-10 text-[11px] sm:text-xs rounded-xl"
+              className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-1.5 px-2.5 sm:px-3 h-10 text-[11px] sm:text-xs rounded-xl capitalize"
             >
-              <span className="truncate">Género</span>
+              <span className="truncate">
+                {generoActual === 'todas' ? 'Género' : generoActual}
+              </span>
               <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleGeneroChange('todas')}>
+            <DropdownMenuItem onClick={() => setGenero('todas')}>
               Todos los géneros
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleGeneroChange('hombre')}>
+            <DropdownMenuItem onClick={() => setGenero('hombre')}>
               Hombre
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleGeneroChange('mujer')}>
+            <DropdownMenuItem onClick={() => setGenero('mujer')}>
               Mujer
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleGeneroChange('unisex')}>
+            <DropdownMenuItem onClick={() => setGenero('unisex')}>
               Unisex
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -107,7 +108,9 @@ export default function Filtros({ setMililitros, setOrden }: FiltrosProps) {
               size="sm" 
               className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-1.5 px-2.5 sm:px-3 h-10 text-[11px] sm:text-xs rounded-xl"
             >
-              <span className="truncate">Tamaños</span>
+              <span className="truncate">
+                {mililitroActual === 'todos' ? 'Tamaños' : `${mililitroActual} ml`}
+              </span>
               <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
@@ -124,6 +127,8 @@ export default function Filtros({ setMililitros, setOrden }: FiltrosProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
+
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -131,7 +136,9 @@ export default function Filtros({ setMililitros, setOrden }: FiltrosProps) {
               size="sm" 
               className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-1.5 px-2.5 sm:px-3 h-10 text-[11px] sm:text-xs rounded-xl"
             >
-              <span className="truncate">Ordenar</span>
+              <span className="truncate">
+                {ordenActual === 'barato' ? 'Menor precio' : ordenActual === 'caro' ? 'Mayor precio' : 'Ordenar'}
+              </span>
               <ChevronDown className="h-3.5 w-3.5 shrink-0 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
@@ -145,7 +152,6 @@ export default function Filtros({ setMililitros, setOrden }: FiltrosProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
     </div>
   );
 }

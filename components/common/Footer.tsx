@@ -23,12 +23,12 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/productos?categoria=hombre" className="hover:text-foreground transition-colors">
+              <Link href="/productos?genero=hombre" className="hover:text-foreground transition-colors">
                 Fragancias Masculinas
               </Link>
             </li>
             <li>
-              <Link href="/productos?categoria=mujer" className="hover:text-foreground transition-colors">
+              <Link href="/productos?genero=mujer" className="hover:text-foreground transition-colors">
                 Fragancias Femeninas
               </Link>
             </li>

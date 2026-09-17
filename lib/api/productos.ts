@@ -37,28 +37,7 @@ export const productosApi = {
     }
   },
 
-  buscarPorGenero: async (genero: string, page = 1, limit = 6, search = ''): Promise<Productos[]> => {
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        ...(search && { search }),
-      });
-
-      const res = await fetch(`${api}/productos/genero/${genero}?${params.toString()}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      });
-
-      if (!res.ok) throw new Error(`Error: ${res.status}`);
-      return await res.json();
-    } catch (error) {
-      console.error("Error al buscar productos por género:", error);
-      throw error;
-    }
-  },
-
-
+ 
   crearProductos: async (formData: FormData): Promise<Productos> => {
     try {
       const token = useStateAuth.getState().token
