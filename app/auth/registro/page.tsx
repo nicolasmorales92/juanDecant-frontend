@@ -63,7 +63,6 @@ export default function Registro() {
                 const { confirmarPassword, ...dataParaBackend } = dataForm;
                 await authApi.registro(dataParaBackend);
 
-                // Se espera a que el usuario presione el botón del SweetAlert para redirigir
                 await Swal.fire({
                     icon: 'success',
                     title: '¡Registro Exitoso!',
@@ -79,7 +78,7 @@ export default function Registro() {
                 });
 
                 formik.resetForm();
-                router.push("/auth/login"); // Redirección al login tras cerrar la alerta
+                router.push("/auth/login"); 
             } catch (error: any) {
                 Swal.fire({
                     icon: 'error',
