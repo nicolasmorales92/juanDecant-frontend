@@ -2,9 +2,9 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { authApi } from '@/lib/api/auth'; // Ajustá la ruta según tu proyecto
+import { authApi } from '@/lib/api/auth'; 
+import { Link } from 'lucide-react';
 
-// 1. Componente interno que consume el token de la URL
 function ContenidoVerificacion() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -46,7 +46,7 @@ function ContenidoVerificacion() {
             onClick={() => router.push('/login')} 
             style={{ marginTop: '15px', padding: '10px 20px', backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
           >
-            Ir a Iniciar Sesión
+            <Link href="/">Ir a Iniciar Sesión</Link>
           </button>
         </>
       )}
