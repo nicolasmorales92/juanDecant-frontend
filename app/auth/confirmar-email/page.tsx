@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { authApi } from '@/lib/api/auth'; 
-import { Link } from 'lucide-react';
 
 function ContenidoVerificacion() {
   const searchParams = useSearchParams();
@@ -43,10 +42,10 @@ function ContenidoVerificacion() {
           <h2 style={{ color: 'green' }}>¡Correo Verificado!</h2>
           <p>{mensaje}</p>
           <button 
-            onClick={() => router.push('/login')} 
+            onClick={() => router.push('/auth/login')} 
             style={{ marginTop: '15px', padding: '10px 20px', backgroundColor: '#0070f3', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
           >
-            <Link href="/">Ir a Iniciar Sesión</Link>
+            Ir a Iniciar Sesión
           </button>
         </>
       )}
@@ -56,7 +55,7 @@ function ContenidoVerificacion() {
           <h2 style={{ color: 'red' }}>Error de Verificación</h2>
           <p>{mensaje}</p>
           <button 
-            onClick={() => router.push('/login')} 
+            onClick={() => router.push('/auth/login')} 
             style={{ marginTop: '15px', padding: '10px 20px', backgroundColor: '#555', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
           >
             Volver al inicio

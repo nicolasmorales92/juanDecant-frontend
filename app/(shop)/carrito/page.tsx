@@ -14,7 +14,9 @@ export default function CarritoPage() {
   const [cargando, setCargando] = useState(false);
   const { estaAutenticado, token, logout } = useStateAuth(); 
   const router = useRouter();
-  const api = process.env.NEXT_PUBLIC_API_URL
+  const api = process.env.NEXT_PUBLIC_API_URL;
+
+  const WHATSAPP_NUMERO = "5491136973905";
 
   const handleIniciarCompra = async () => {
     try {
@@ -66,6 +68,27 @@ export default function CarritoPage() {
       const data = await response.json();
 
       if (data.initPoint) {
+        const mensajeText = encodeURIComponent(
+          `¡Hola! Realicé la compra por $${calcularTotal().toLocaleString('es-AR')} en la web. Quisiera coordinar la entrega.`
+        );
+        const linkWhatsApp = `https://wa.me/${WHATSAPP_NUMERO}?text=${mensajeText}`;
+
+        await Swal.fire({
+          icon: "info",
+          title: "¡Importante antes de pagar!",
+          html: `
+            <p class="text-sm text-gray-600 mb-3">
+              Una vez completado el pago en Mercado Pago, deberás comunicarte con el vendedor por <strong>WhatsApp</strong> para coordinar el retiro o envío de tu pedido.
+            </p>
+            <a href="${linkWhatsApp}" target="_blank" rel="noopener noreferrer" class="inline-block mt-2 text-xs font-bold text-green-600 underline">
+              ¿Querés guardar el contacto de WhatsApp ahora?
+            </a>
+          `,
+          confirmButtonText: "Entendido, ir a pagar",
+          confirmButtonColor: "#009EE3",
+          allowOutsideClick: false,
+        });
+
         window.location.href = data.initPoint;
       } else {
         alert("No se pudo obtener el enlace de pago de Mercado Pago.");
@@ -107,7 +130,6 @@ export default function CarritoPage() {
 
             return (
               <Card key={item.cartItemId} className="flex flex-row items-center justify-between p-4 rounded-xl border">
-
                 <div className="h-20 w-20 rounded-lg bg-muted/50 overflow-hidden border border-border/50">
                   <img src={item.imagenes?.[0]} alt={`${item.nombre} - ${item.marca}`} />
                 </div>
@@ -131,7 +153,6 @@ export default function CarritoPage() {
                     <span className="text-sm font-black">${(item.precioSeleccionado * item.cantidad).toLocaleString('es-AR')}</span>
                   </div>
                 </div>
-
               </Card>
             );
           })}
@@ -153,17 +174,18 @@ export default function CarritoPage() {
           </div>
         </div>
       )}
-     <div className="mt-6 p-3 rounded-lg bg-muted/50 border border-border/60 text-center space-y-1">
-  <p className="text-m text-muted-foreground">
-    ¿Querés hacer compras en efectivo?
-  </p>
-  <Link 
-    href="/soporte/contacto" 
-    className="inline-block text-l font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors"
-  >
-    Comunicate con soporte 
-  </Link>
-</div>
+
+      <div className="mt-6 p-3 rounded-lg bg-muted/50 border border-border/60 text-center space-y-1">
+        <p className="text-m text-muted-foreground">
+          ¿Querés hacer compras en efectivo?
+        </p>
+        <Link 
+          href="/soporte/contacto" 
+          className="inline-block text-l font-semibold text-red-600 hover:text-red-700 hover:underline transition-colors"
+        >
+          Comunicate con soporte 
+        </Link>
+      </div>
     </div>
   );
 }
