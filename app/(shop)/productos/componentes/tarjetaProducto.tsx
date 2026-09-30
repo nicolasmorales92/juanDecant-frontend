@@ -1,15 +1,11 @@
 'use client';
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Navigation, Pagination } from "swiper/modules";
-import { SwiperSlide, Swiper } from "swiper/react";
+import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart } from "lucide-react";
-
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import { ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 
 import Swal from 'sweetalert2';
 import { Productos } from "@/lib/interfaces/productos/producto";
@@ -19,6 +15,11 @@ import { Variantes } from "@/lib/interfaces/productos/variantes";
 export default function TarjetaProducto({ prod }: { prod: Productos }) {
   const router = useRouter();
   const agregarAlCarrito = useStoreCarrito((state) => state.agregarAlCarrito);
+  const [imgIndex, setImgIndex] = useState(0);
+
+  const imagenes = prod.imagenes && prod.imagenes.length > 0 
+    ? prod.imagenes 
+    : ['/placeholder.png'];
 
   const handleAgregarCarrito = (variante: Variantes) => {
     agregarAlCarrito(prod, variante);
@@ -41,29 +42,45 @@ export default function TarjetaProducto({ prod }: { prod: Productos }) {
     router.push(`/productos/${prod.id}`);
   };
 
+  const prevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIndex((prev) => (prev === 0 ? imagenes.length - 1 : prev - 1));
+  };
+
+  const nextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImgIndex((prev) => (prev === imagenes.length - 1 ? 0 : prev + 1));
+  };
+
   return (
     <Card className="overflow-hidden flex flex-col h-full rounded-xl border border-border bg-card text-card-foreground shadow-sm hover:shadow-md transition-all duration-300 group">
-      <div className="relative h-48 w-full bg-muted/30 overflow-hidden shrink-0 
-        [&_.swiper-button-next]:text-zinc-900 [&_.swiper-button-prev]:text-zinc-900 
-        [&_.swiper-button-next]:after:text-sm [&_.swiper-button-prev]:after:text-sm 
-        [&_.swiper-button-next]:opacity-100 [&_.swiper-button-prev]:opacity-100">
-        <Swiper
-          modules={[Navigation, Pagination]}
-          navigation={true}
-          pagination={{ clickable: true }}
-          className="w-full h-full custom-swiper-cards"
-        >
-          {prod.imagenes?.map((url: string, index: number) => (
-            <SwiperSlide key={index} className="items-center justify-center w-full h-full p-2" style={{ display: 'flex' }}>
-              <img
-                src={url}
-                alt={`${prod.nombre} - ${index}`}
-                onClick={handleVerMas}
-                className="object-contain max-h-full max-w-full mx-auto cursor-pointer group-hover:scale-105 transition-transform duration-500"
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+      <div className="relative h-48 w-full bg-muted/30 overflow-hidden shrink-0 flex items-center justify-center p-2">
+        <Image
+          src={imagenes[imgIndex]}
+          alt={`${prod.nombre} - ${imgIndex}`}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          loading="lazy"
+          onClick={handleVerMas}
+          className="object-contain p-2 cursor-pointer group-hover:scale-105 transition-transform duration-300"
+        />
+
+        {imagenes.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-1 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-1 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background text-foreground p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
       </div>
 
       <div className="flex flex-col justify-between p-3">

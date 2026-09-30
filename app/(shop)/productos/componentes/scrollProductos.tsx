@@ -1,7 +1,6 @@
 'use client'
 
-
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import TarjetaProducto from './tarjetaProducto';
 import { useSearchParams } from 'next/navigation';
 import { Productos } from '@/lib/interfaces/productos/producto';
@@ -30,6 +29,7 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
     setMasProductos(true);
   }, [query]);
 
+  // Petición al backend
   useEffect(() => {
     let cancelado = false;
 
@@ -39,12 +39,7 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
         const nuevos = await productosApi.obtenerProductos({ query, page: pagina, limit: 6 });
 
         if (!cancelado) {
-          if (pagina === 1) {
-            setProductos(nuevos);
-          } else {
-            setProductos((prev) => [...prev, ...nuevos]);
-          }
-
+          setProductos((prev) => (pagina === 1 ? nuevos : [...prev, ...nuevos]));
           if (nuevos.length < 6) {
             setMasProductos(false);
           }
@@ -64,40 +59,43 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
   }, [pagina, query]);
 
   useEffect(() => {
-    if (!loaderRef.current || !masProductos || cargando) return;
+    const el = loaderRef.current;
+    if (!el || !masProductos || cargando) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
         setPagina((prev) => prev + 1);
       }
     });
 
-    observer.observe(loaderRef.current);
+    observer.observe(el);
 
     return () => observer.disconnect();
   }, [masProductos, cargando]);
 
-  const productosFiltrados = productos
-    .filter((p) => {
-      const coincideGenero =
-        genero === 'todas' ||
-        !genero ||
-        (p.genero && p.genero.toLowerCase() === genero.toLowerCase()) 
+  const productosFiltrados = useMemo(() => {
+    return productos
+      .filter((p) => {
+        const coincideGenero =
+          genero === 'todas' ||
+          !genero ||
+          (p.genero && p.genero.toLowerCase() === genero.toLowerCase());
 
-      const coincideTamaño =
-        mililitros === 'todos' ||
-        p.variantes?.some((v) => String(v.mililitros) === mililitros);
+        const coincideTamaño =
+          mililitros === 'todos' ||
+          p.variantes?.some((v) => String(v.mililitros) === mililitros);
 
-      return coincideGenero && coincideTamaño;
-    })
-    .sort((a, b) => {
-      if (ordenPrecio === 'ninguno') return 0;
-      const vA = mililitros === 'todos' ? a.variantes : a.variantes?.filter((v) => String(v.mililitros) === mililitros) || [];
-      const vB = mililitros === 'todos' ? b.variantes : b.variantes?.filter((v) => String(v.mililitros) === mililitros) || [];
-      const precioA = vA.length > 0 ? Math.min(...vA.map((v) => v.precio)) : 0;
-      const precioB = vB.length > 0 ? Math.min(...vB.map((v) => v.precio)) : 0;
-      return ordenPrecio === 'barato' ? precioA - precioB : precioB - precioA;
-    });
+        return coincideGenero && coincideTamaño;
+      })
+      .sort((a, b) => {
+        if (ordenPrecio === 'ninguno') return 0;
+        const vA = mililitros === 'todos' ? a.variantes : a.variantes?.filter((v) => String(v.mililitros) === mililitros) || [];
+        const vB = mililitros === 'todos' ? b.variantes : b.variantes?.filter((v) => String(v.mililitros) === mililitros) || [];
+        const precioA = vA.length > 0 ? Math.min(...vA.map((v) => v.precio)) : 0;
+        const precioB = vB.length > 0 ? Math.min(...vB.map((v) => v.precio)) : 0;
+        return ordenPrecio === 'barato' ? precioA - precioB : precioB - precioA;
+      });
+  }, [productos, genero, mililitros, ordenPrecio]);
 
   return (
     <div>
@@ -107,7 +105,7 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
         ))}
       </ul>
 
-      <div ref={loaderRef} className="text-center py-6">
+      <div ref={loaderRef} className="text-center py-6 min-h-[60px]">
         {cargando && <p className="text-zinc-500 font-medium">Cargando más productos...</p>}
         {!masProductos && productosFiltrados.length > 0 && (
           <p className="text-gray-400 text-sm">Has llegado al final del catálogo.</p>

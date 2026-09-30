@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     preguntas: '¿Qué medios de pago aceptan?',
-    respuestas: 'Por el momento solo Mercado Pago hy efectivo.'
+    respuestas: 'Por el momento solo Mercado Pago y efectivo.'
   }
 ];
 

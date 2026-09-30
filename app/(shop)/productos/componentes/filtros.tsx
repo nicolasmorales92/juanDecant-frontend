@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Search } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 
 interface FiltrosProps {
@@ -29,7 +29,6 @@ export default function Filtros({
   mililitroActual,
   ordenActual,
 }: FiltrosProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const queryParam = searchParams.get('query') || '';
   const [busqueda, setBusqueda] = useState(queryParam);
@@ -49,11 +48,12 @@ export default function Filtros({
         params.delete('query');
       }
 
-      router.push(`/productos?${params.toString()}`, { scroll: false });
-    }, 400);
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState(null, '', newUrl);
+    }, 300);
 
     return () => clearTimeout(timer);
-  }, [busqueda, queryParam, searchParams, router]);
+  }, [busqueda, queryParam, searchParams]);
 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 w-full">
@@ -84,23 +84,14 @@ export default function Filtros({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setGenero('todas')}>
-              Todos los géneros
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setGenero('hombre')}>
-              Hombre
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setGenero('mujer')}>
-              Mujer
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setGenero('unisex')}>
-              Unisex
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setGenero('todas')}>Todos los géneros</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setGenero('hombre')}>Hombre</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setGenero('mujer')}>Mujer</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setGenero('unisex')}>Unisex</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-
-
+        {/* Tamaños */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -115,20 +106,13 @@ export default function Filtros({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setMililitros('todos')}>
-              Todos los tamaños
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setMililitros('5')}>
-              5 ml
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setMililitros('2.5')}>
-              2.5 ml
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMililitros('todos')}>Todos los tamaños</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMililitros('5')}>5 ml</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setMililitros('2.5')}>2.5 ml</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-
-
+        {/* Orden */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -143,12 +127,8 @@ export default function Filtros({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setOrden('barato')}>
-              Menor precio
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setOrden('caro')}>
-              Mayor precio
-            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOrden('barato')}>Menor precio</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOrden('caro')}>Mayor precio</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

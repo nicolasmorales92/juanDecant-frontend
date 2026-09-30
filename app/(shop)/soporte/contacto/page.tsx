@@ -6,7 +6,7 @@ import { FaInstagram, FaWhatsapp } from 'react-icons/fa6';
 export default function ContactoPage() {
   const whatsappNumber = '5491136973905'; 
   const instagramUser = 'juanchi_kemmerer'; 
-  const emailAddress = 'contacto@juanchi.com';
+  const emailAddress = 'nicolaseduardomorales92@gmail.com';
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
