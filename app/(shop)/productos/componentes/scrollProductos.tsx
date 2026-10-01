@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import TarjetaProducto from './tarjetaProducto';
 import { useSearchParams } from 'next/navigation';
 import { Productos } from '@/lib/interfaces/productos/producto';
@@ -21,59 +21,63 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
   const [masProductos, setMasProductos] = useState(true);
   const [cargando, setCargando] = useState(false);
 
+  // Ref para evitar peticiones simultáneas/duplicadas
+  const cargandoRef = useRef(false);
   const loaderRef = useRef<HTMLDivElement>(null);
 
+  // Reset cuando cambia la búsqueda
   useEffect(() => {
     setProductos([]);
     setPagina(1);
     setMasProductos(true);
   }, [query]);
 
-  useEffect(() => {
-    let cancelado = false;
+  // Función de carga memoizada
+  const cargarProductos = useCallback(async (pagi: number, queryBusqueda: string) => {
+    if (cargandoRef.current) return;
+    cargandoRef.current = true;
+    setCargando(true);
 
-    async function cargar() {
-      setCargando(true);
-      try {
-        const nuevos = await productosApi.obtenerProductos({ query, page: pagina, limit: 6 });
+    try {
+      const nuevos = await productosApi.obtenerProductos({ query: queryBusqueda, page: pagi, limit: 6 });
 
-        if (!cancelado) {
-          setProductos((prev) => (pagina === 1 ? nuevos : [...prev, ...nuevos]));
-          if (!nuevos || nuevos.length < 6) {
-            setMasProductos(false);
-          }
-        }
-      } catch (err) {
-        console.error("Error al cargar productos:", err);
-      } finally {
-        if (!cancelado) setCargando(false);
+      if (!nuevos || nuevos.length === 0) {
+        setMasProductos(false);
+      } else {
+        setProductos((prev) => (pagi === 1 ? nuevos : [...prev, ...nuevos]));
+        if (nuevos.length < 6) setMasProductos(false);
       }
+    } catch (err) {
+      console.error("Error al cargar productos:", err);
+    } finally {
+      cargandoRef.current = false;
+      setCargando(false);
     }
+  }, []);
 
-    cargar();
+  // Efecto principal para traer la página actual
+  useEffect(() => {
+    cargarProductos(pagina, query);
+  }, [pagina, query, cargarProductos]);
 
-    return () => {
-      cancelado = true;
-    };
-  }, [pagina, query]);
-
+  // Observer estricto: solo actúa si NO se está cargando
   useEffect(() => {
     const el = loaderRef.current;
-    if (!el || !masProductos || cargando) return;
+    if (!el || !masProductos) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !cargando) {
+        if (entry.isIntersecting && !cargandoRef.current && masProductos) {
           setPagina((prev) => prev + 1);
         }
       },
-      { rootMargin: '300px' }
+      { rootMargin: '100px' }
     );
 
     observer.observe(el);
 
     return () => observer.disconnect();
-  }, [masProductos, cargando]);
+  }, [masProductos]);
 
   const productosFiltrados = useMemo(() => {
     return productos
@@ -102,13 +106,13 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
   return (
     <div>
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 my-4 max-w-6xl mx-auto">
-        {productosFiltrados.map((prod) => (
-          <TarjetaProducto key={prod.id} prod={prod} />
+        {productosFiltrados.map((prod, index) => (
+          <TarjetaProducto key={`${prod.id}-${index}`} prod={prod} />
         ))}
       </ul>
 
       <div ref={loaderRef} className="text-center py-6 min-h-[60px]">
-        {cargando && <p className="text-zinc-500 font-medium">Cargando más productos...</p>}
+        {cargando && <p className="text-zinc-500 font-medium animate-pulse">Cargando productos...</p>}
         {!masProductos && productosFiltrados.length > 0 && (
           <p className="text-gray-400 text-sm">Has llegado al final del catálogo.</p>
         )}

@@ -34,27 +34,22 @@ export default function Filtros({
   const [busqueda, setBusqueda] = useState(queryParam);
 
   useEffect(() => {
-    setBusqueda(queryParam);
-  }, [queryParam]);
+  const timer = setTimeout(() => {
+    if (busqueda.trim() === queryParam) return;
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (busqueda.trim() === queryParam) return;
+    const params = new URLSearchParams(window.location.search);
+    if (busqueda.trim()) {
+      params.set('query', busqueda.trim());
+    } else {
+      params.delete('query');
+    }
 
-      const params = new URLSearchParams(searchParams.toString());
-      if (busqueda.trim()) {
-        params.set('query', busqueda.trim());
-      } else {
-        params.delete('query');
-      }
+    window.history.pushState(null, '', `?${params.toString()}`);
+    window.dispatchEvent(new Event('popstate'));
+  }, 400);
 
-      const newUrl = `${window.location.pathname}?${params.toString()}`;
-      window.history.replaceState(null, '', newUrl);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [busqueda, queryParam, searchParams]);
-
+  return () => clearTimeout(timer);
+}, [busqueda, queryParam]);
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 w-full">
       <div className="relative w-full sm:max-w-xs md:max-w-sm shrink-0">
@@ -69,7 +64,6 @@ export default function Filtros({
       </div>
 
       <div className="grid grid-cols-3 sm:flex sm:items-center sm:justify-end gap-1.5 sm:gap-2 w-full">
-        {/* Género */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -91,7 +85,6 @@ export default function Filtros({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Tamaños */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
@@ -112,7 +105,6 @@ export default function Filtros({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Orden */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
