@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import TarjetaProducto from './tarjetaProducto';
@@ -29,7 +29,6 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
     setMasProductos(true);
   }, [query]);
 
-  // Petición al backend
   useEffect(() => {
     let cancelado = false;
 
@@ -40,7 +39,7 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
 
         if (!cancelado) {
           setProductos((prev) => (pagina === 1 ? nuevos : [...prev, ...nuevos]));
-          if (nuevos.length < 6) {
+          if (!nuevos || nuevos.length < 6) {
             setMasProductos(false);
           }
         }
@@ -62,11 +61,14 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
     const el = loaderRef.current;
     if (!el || !masProductos || cargando) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setPagina((prev) => prev + 1);
-      }
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !cargando) {
+          setPagina((prev) => prev + 1);
+        }
+      },
+      { rootMargin: '300px' }
+    );
 
     observer.observe(el);
 

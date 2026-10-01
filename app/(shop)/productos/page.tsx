@@ -1,25 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Filtros from './componentes/filtros';
 import ScrollProductos from './componentes/scrollProductos';
 import { useSearchParams } from 'next/navigation';
 
 export default function ProductosPage() {
-  const [genero, setGenero] = useState<string>('todas');
-  const [mililitros, setMililitros] = useState<string>('todos');
-  const [ordenPrecio, setOrdenPrecio] = useState<string>('ninguno');
-
   const searchParams = useSearchParams();
-  const generoParam = searchParams.get('genero') || 'todas';
-  const mililitrosParam = searchParams.get('mililitros') || 'todos';
-  const ordenParam = searchParams.get('orden') || 'ninguno';
 
-  useEffect(() => {
-    setGenero(generoParam);
-    setMililitros(mililitrosParam);
-    setOrdenPrecio(ordenParam);
-  }, [generoParam, mililitrosParam, ordenParam]);
+  // Leer los valores directamente de la URL desde el primer render
+  const [genero, setGenero] = useState<string>(() => searchParams.get('genero') || 'todas');
+  const [mililitros, setMililitros] = useState<string>(() => searchParams.get('mililitros') || 'todos');
+  const [ordenPrecio, setOrdenPrecio] = useState<string>(() => searchParams.get('orden') || 'ninguno');
 
   return (
     <div className="m-6 p-8">

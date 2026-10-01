@@ -61,6 +61,7 @@ export default function TarjetaProducto({ prod }: { prod: Productos }) {
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           loading="lazy"
+          unoptimized
           onClick={handleVerMas}
           className="object-contain p-2 cursor-pointer group-hover:scale-105 transition-transform duration-300"
         />
