@@ -21,8 +21,13 @@ export const productosApi = {
         limit: limit.toString(),
       });
 
-      if (genero) params.append('genero', genero);
-      if (query) params.append('search', query);
+      if (genero && genero !== 'todas') {
+        params.append('genero', genero);
+      }
+
+      if (query && query.trim() !== '') {
+        params.append('search', query);
+      }
 
       const res = await fetch(`${api}/productos?${params.toString()}`);
 
@@ -36,8 +41,6 @@ export const productosApi = {
       throw error;
     }
   },
-
- 
   crearProductos: async (formData: FormData): Promise<Productos> => {
     try {
       const token = useStateAuth.getState().token

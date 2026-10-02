@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import TarjetaProducto from './tarjetaProducto';
 import { useSearchParams } from 'next/navigation';
 import { Productos } from '@/lib/interfaces/productos/producto';
 import { productosApi } from '@/lib/api/productos';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface ScrollProductosProps {
   genero: string;
@@ -21,63 +23,54 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
   const [masProductos, setMasProductos] = useState(true);
   const [cargando, setCargando] = useState(false);
 
-  // Ref para evitar peticiones simultáneas/duplicadas
-  const cargandoRef = useRef(false);
-  const loaderRef = useRef<HTMLDivElement>(null);
-
-  // Reset cuando cambia la búsqueda
   useEffect(() => {
-    setProductos([]);
-    setPagina(1);
-    setMasProductos(true);
+    let cancelado = false
+
+    const fetchInicial = async () => {
+      setCargando(true)
+      setPagina(1)
+      try {
+        const nuevos = await productosApi.obtenerProductos({ query, page: 1, limit: 6 });
+        if (!cancelado) {
+          setProductos(nuevos || []);
+          setMasProductos((nuevos?.length || 0) === 6);
+        }
+      } catch (error) {
+        console.error("Error al obtener productos:", error);
+      } finally {
+        if (!cancelado) setCargando(false);
+      }
+    };
+
+    fetchInicial();
+
+    return () => {
+      cancelado = true;
+    };
   }, [query]);
 
-  // Función de carga memoizada
-  const cargarProductos = useCallback(async (pagi: number, queryBusqueda: string) => {
-    if (cargandoRef.current) return;
-    cargandoRef.current = true;
+  const handleVerMas = async () => {
+    if (cargando || !masProductos) return;
+
+    const siguientePagina = pagina + 1;
     setCargando(true);
 
     try {
-      const nuevos = await productosApi.obtenerProductos({ query: queryBusqueda, page: pagi, limit: 6 });
-
+      const nuevos = await productosApi.obtenerProductos({ query, page: siguientePagina, limit: 6 });
+      
       if (!nuevos || nuevos.length === 0) {
         setMasProductos(false);
       } else {
-        setProductos((prev) => (pagi === 1 ? nuevos : [...prev, ...nuevos]));
+        setProductos((prev) => [...prev, ...nuevos]);
+        setPagina(siguientePagina);
         if (nuevos.length < 6) setMasProductos(false);
       }
     } catch (err) {
-      console.error("Error al cargar productos:", err);
+      console.error("Error al cargar más productos:", err);
     } finally {
-      cargandoRef.current = false;
       setCargando(false);
     }
-  }, []);
-
-  // Efecto principal para traer la página actual
-  useEffect(() => {
-    cargarProductos(pagina, query);
-  }, [pagina, query, cargarProductos]);
-
-  // Observer estricto: solo actúa si NO se está cargando
-  useEffect(() => {
-    const el = loaderRef.current;
-    if (!el || !masProductos) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !cargandoRef.current && masProductos) {
-          setPagina((prev) => prev + 1);
-        }
-      },
-      { rootMargin: '100px' }
-    );
-
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, [masProductos]);
+  };
 
   const productosFiltrados = useMemo(() => {
     return productos
@@ -106,18 +99,36 @@ export default function ScrollProductos({ genero, mililitros, ordenPrecio }: Scr
   return (
     <div>
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 my-4 max-w-6xl mx-auto">
-        {productosFiltrados.map((prod, index) => (
-          <TarjetaProducto key={`${prod.id}-${index}`} prod={prod} />
+        {productosFiltrados.map((prod) => (
+          <TarjetaProducto key={prod.id} prod={prod} />
         ))}
       </ul>
 
-      <div ref={loaderRef} className="text-center py-6 min-h-[60px]">
-        {cargando && <p className="text-zinc-500 font-medium animate-pulse">Cargando productos...</p>}
-        {!masProductos && productosFiltrados.length > 0 && (
-          <p className="text-gray-400 text-sm">Has llegado al final del catálogo.</p>
+      <div className="flex flex-col items-center justify-center py-8 min-h-[80px]">
+        {masProductos && (
+          <Button
+            onClick={handleVerMas}
+            disabled={cargando}
+            variant="outline"
+            className="px-6 py-2 rounded-xl font-medium shadow-sm cursor-pointer"
+          >
+            {cargando ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Cargando...
+              </>
+            ) : (
+              'Ver más productos'
+            )}
+          </Button>
         )}
+
+        {!masProductos && productosFiltrados.length > 0 && (
+          <p className="text-muted-foreground text-sm">Has llegado al final del catálogo.</p>
+        )}
+
         {!cargando && productosFiltrados.length === 0 && (
-          <p className="text-gray-500">No se encontraron productos.</p>
+          <p className="text-muted-foreground">No se encontraron productos.</p>
         )}
       </div>
     </div>
